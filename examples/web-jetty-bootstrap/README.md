@@ -22,6 +22,10 @@ Part of [github-copilot-java-examples](../..).
 - An active GitHub Copilot subscription
 - Authentication configured (see [Authentication](#authentication))
 
+## Sample
+<img width="750" height="600" alt="github-copilot-web-jetty-example1" src="https://github.com/user-attachments/assets/667517e7-c4b2-44bb-b757-b0971a296fc7" />
+
+
 ## Run
 
 ```powershell
