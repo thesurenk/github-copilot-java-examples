@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Github Copilot SDK with Java - Web Application Bootstrap</title>
+  <style>
+    :root {
+      --ink: #1a1f24;
+      --muted: #5c6770;
+      --pass: #1f6f4a;
+      --pass-bg: #e8f5ee;
+      --fail: #9b2c2c;
+      --fail-bg: #fce8e8;
+      --neutral: #4a5560;
+      --neutral-bg: #eef1f4;
+      --surface: #f7f5f1;
+      --rule: #d8d2c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, #e4efe8 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 90% 90%, #efe6dc 0%, transparent 50%),
+        var(--surface);
+    }
+    .shell {
+      width: min(56rem, calc(100% - 2rem));
+    }
+    main {
+      width: 100%;
+      padding: 2rem 2.25rem;
+      border-top: 3px solid var(--ink);
+    }
+    .page-title {
+      margin: 0 0 1rem;
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      text-transform: none;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 70% 30%;
+      gap: 2rem;
+      align-items: start;
+    }
+    .col-main section:first-of-type,
+    .col-side section:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+    @media (max-width: 768px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .col-side section:first-of-type {
+        margin-top: 1.75rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--rule);
+      }
+    }
+    h1, h2, h3 {
+      margin: 0 0 0.35rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1 { font-size: 1.15rem; }
+    h2 { font-size: 0.75rem; letter-spacing: 0.06em; }
+    h3 { font-size: 0.8rem; margin-top: 0; }
+    .status {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+    .status.pass { color: var(--pass); }
+    .status.fail { color: var(--fail); }
+    .status.neutral { color: var(--neutral); }
+    .message, .auth-box, .ask-result {
+      margin: 0;
+      padding: 1rem 1.1rem;
+      border-radius: 4px;
+      border: 1px solid var(--rule);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .message.pass, .auth-box.pass, .ask-result.pass {
+      color: var(--pass);
+      background: var(--pass-bg);
+      border-color: #b7dcc8;
+    }
+    .message.fail, .auth-box.fail, .ask-result.fail {
+      color: var(--fail);
+      background: var(--fail-bg);
+      border-color: #e8b4b4;
+    }
+    .auth-box.neutral, .ask-result.neutral {
+      color: var(--neutral);
+      background: var(--neutral-bg);
+      border-color: #c5ccd3;
+    }
+    .auth-label {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .auth-label.pass { color: var(--pass); }
+    .auth-label.fail { color: var(--fail); }
+    .auth-label.neutral { color: var(--neutral); }
+    .auth-source {
+      margin: 0 0 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    section {
+      margin-top: 1.75rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--rule);
+    }
+    .versions dl, .api-hint {
+      margin: 0;
+      font-size: 0.85rem;
+    }
+    .versions dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1rem;
+    }
+    .versions dt { color: var(--muted); }
+    .versions dd {
+      margin: 0;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    }
+    .ask-form {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    textarea {
+      width: 100%;
+      min-height: 5rem;
+      padding: 0.75rem;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      font: inherit;
+      resize: vertical;
+    }
+    button {
+      justify-self: start;
+      padding: 0.55rem 1rem;
+      border: 0;
+      border-radius: 4px;
+      background: var(--ink);
+      color: #fff;
+      font: inherit;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      margin-top: 0.75rem;
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--rule);
+    }
+    .btn-secondary:hover {
+      background: var(--neutral-bg);
+    }
+    .status-json {
+      display: none;
+      margin-top: 0.75rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      background: #fff;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 16rem;
+      overflow: auto;
+    }
+    .status-json.visible {
+      display: block;
+    }
+    .api-hint {
+      margin-top: 0.75rem;
+      color: var(--muted);
+    }
+    .api-hint code {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.82rem;
+    }
+    footer {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <p class="page-title">Github Copilot SDK with Java - Web Application Bootstrap</p>
+    <main>
+    <h1>GitHub Copilot CLI</h1>
+
+    <div class="layout">
+      <div class="col-main">
+        <section class="auth" aria-label="Authentication">
+          <h2>Authentication</h2>
+          <p class="auth-label __AUTH_CLASS__">__AUTH_LABEL__</p>
+          <p class="auth-source">Auth source: __AUTH_SOURCE__</p>
+          <p class="auth-box __AUTH_CLASS__">__AUTH_MESSAGE__</p>
+        </section>
+
+        <section class="ask" aria-label="Ask Copilot">
+          <h2>Ask Copilot</h2>
+          <form class="ask-form" method="post" action="/ask">
+            <label for="prompt">Try a short prompt</label>
+            <textarea id="prompt" name="prompt" placeholder="What is 2+2?">__PROMPT_VALUE__</textarea>
+            <button type="submit">Send to Copilot</button>
+          </form>
+          __ASK_RESULT_BLOCK__
+        </section>
+      </div>
+
+      <div class="col-side">
+        <section class="connectivity" aria-label="Connectivity">
+          <h2>Connectivity</h2>
+          <p class="status __STATUS_CLASS__">__STATUS_LABEL__</p>
+          <p class="message __STATUS_CLASS__">__MESSAGE__</p>
+        </section>
+
+        <section class="versions" aria-label="Versions">
+          <h2>Versions</h2>
+          <dl>
+            <dt>Java</dt>
+            <dd>__JAVA_VERSION__</dd>
+            <dt>Jetty</dt>
+            <dd>__JETTY_VERSION__</dd>
+            <dt>Copilot SDK</dt>
+            <dd>__COPILOT_SDK_VERSION__</dd>
+            <dt>Maven</dt>
+            <dd>__MAVEN_VERSION__</dd>
+          </dl>
+          <p class="api-hint">JSON status API: <code>GET /api/status</code></p>
+          <button type="button" class="btn-secondary" id="status-api-btn">Get /api/status</button>
+          <pre class="status-json" id="status-json" aria-live="polite"></pre>
+        </section>
+      </div>
+    </div>
+
+    <footer>Connectivity and auth are checked on page load. Refresh to re-run.</footer>
+  </main>
+  </div>
+  <script>
+    document.getElementById("status-api-btn").addEventListener("click", async () => {
+      const output = document.getElementById("status-json");
+      output.classList.add("visible");
+      output.textContent = "Loading...";
+      try {
+        const response = await fetch("/api/status");
+        const data = await response.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        output.textContent = "Failed to load /api/status: " + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
